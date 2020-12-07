@@ -1,6 +1,6 @@
 
-from typing import List, Any, Iterator, Tuple, NamedTuple
-from random import randint, choice, shuffle
+from typing import List, Any, Iterator, Tuple, NamedTuple, Set
+from random import randint, choice, shuffle, random
 
 from .objects import Child
 from ..commons import (
@@ -42,10 +42,8 @@ class House:
             self.nobstacles = total * obstacleCells_percent // 100
         else:
             self.nobstacles = number_of_obstacles
-        self.nobstacles = number_of_obstacles
         self.nturns = 100*t if number_of_turns is None else number_of_turns
         self.children = []
-        self.playpens = []
         self.agents = []
         self.dim: Dimensions = dimensions
         self.time_interval = t
@@ -63,16 +61,16 @@ class House:
     def __str__(self):
         turn = f'(turn: {self.turn}/{self.nturns})\n'
         res = ''
-        for r, row in enumerate(self.floor):
-            for c, elmt in enumerate(row):
+        for r in range(len(self.floor[0])):
+            for c in range(len(self.floor)):
                 content = None
-                if elmt == CellContent.Empty:
+                if self.floor[c][r] == CellContent.Empty:
                     content = '_'
-                elif elmt == CellContent.Dirty:
+                elif self.floor[c][r] == CellContent.Dirty:
                     content = '*'
-                elif elmt == CellContent.Obstacle:
+                elif self.floor[c][r] == CellContent.Obstacle:
                     content = 'o'
-                elif elmt == CellContent.Playpen:
+                elif self.floor[c][r] == CellContent.Playpen:
                     content = 'U'
                 #
                 if any(ag.coord == (c, r) for ag in self.agents):
@@ -90,9 +88,9 @@ class House:
         self.floor = [
             [
                 CellContent.Empty
-                for _ in range(self.dim.cols)
+                for _ in range(self.dim.rows)
             ]
-            for _ in range(self.dim.rows)
+            for _ in range(self.dim.cols)
         ]
         self.set_random_nplaypens(self.nchildren)
         self.set_random_nCellTypes(self.nobstacles, CellContent.Obstacle)
@@ -174,9 +172,9 @@ class House:
         self.floor = [
             [
                 CellContent.Empty
-                for _ in range(self.dim.cols)
+                for _ in range(self.dim.rows)
             ]
-            for _ in range(self.dim.rows)
+            for _ in range(self.dim.cols)
         ]
         self.playpens = []
         ndirt = (
