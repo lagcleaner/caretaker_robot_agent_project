@@ -22,7 +22,28 @@ class Directions:
     ]
 
     @staticmethod
-    def rdir(cls, extended_directions=False) -> Tuple[int, int]:
+    def to_string(dr: Tuple[int, int]):
+        if Directions.North == dr:
+            return 'North'
+        if Directions.South == dr:
+            return 'South'
+        if Directions.West == dr:
+            return 'West'
+        if Directions.East == dr:
+            return 'East'
+        if Directions.Northeast == dr:
+            return 'Northeast'
+        if Directions.Northwest == dr:
+            return 'Northwest'
+        if Directions.Southeast == dr:
+            return 'Southeast'
+        if Directions.Southwest == dr:
+            return 'Southwest'
+        else:
+            return f'Undef: {dr}'
+
+    @staticmethod
+    def rdir(extended_directions=False) -> Tuple[int, int]:
         if extended_directions:
             directs = Directions.ALL_EXTENDED
         else:
