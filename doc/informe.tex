@@ -1,0 +1,204 @@
+%===================================================================================
+% JORNADA CIENTÍFICA ESTUDIANTIL - MATCOM, UH
+%===================================================================================
+% Esta plantilla ha sido diseñada para ser usada en los artículos de la
+% Jornada Científica Estudiantil, MatCom.
+%
+% Por favor, siga las instrucciones de esta plantilla y rellene en las secciones
+% correspondientes.
+%
+% NOTA: Necesitará el archivo 'jcematcom.sty' en la misma carpeta donde esté este
+%       archivo para poder utilizar esta plantila.
+%===================================================================================
+
+
+
+%===================================================================================
+% PREÁMBULO
+%-----------------------------------------------------------------------------------
+\documentclass[a4paper,10pt,twocolumn]{article}
+
+%===================================================================================
+% Paquetes
+%-----------------------------------------------------------------------------------
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{informe}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage[pdftex]{hyperref}
+%-----------------------------------------------------------------------------------
+% Configuración
+%-----------------------------------------------------------------------------------
+\hypersetup{colorlinks,%
+	    citecolor=black,%
+	    filecolor=black,%
+	    linkcolor=black,%
+	    urlcolor=blue}
+
+%===================================================================================
+
+
+
+%===================================================================================
+% Presentacion
+%-----------------------------------------------------------------------------------
+% Título
+%-----------------------------------------------------------------------------------
+\title{Informe del Proyecto Agentes. Simulación. Curso 2020-2021}
+
+%-----------------------------------------------------------------------------------
+% Autores
+%-----------------------------------------------------------------------------------
+\author{\\
+\name Leonel Alejandro Garc\'ia L\'opez\email \href{mailto:r.marti@estudiantes.matcom.uh.cu}{l.garcia3@estudiantes.matcom.uh.cu}
+	\\ \addr Grupo C412
+}
+
+%-----------------------------------------------------------------------------------
+% Tutores
+%-----------------------------------------------------------------------------------
+\tutors{\\
+Dr. Yudivián Almeida Cruz, \emph{Facultad de Matemática y Computación, Universidad de La Habana} \\
+Lic. Gabriela Rodriguez Santa Cruz Pacheco, \emph{Facultad de Matemática y Computación, Universidad de La Habana} \\
+Lic. Daniel Alejandro Valdés Pérez, \emph{Facultad de Matemática y Computación, Universidad de La Habana}}
+%-----------------------------------------------------------------------------------
+% Headings
+%-----------------------------------------------------------------------------------
+\jcematcomheading{\the\year}{1-\pageref{end}}{Leonel Alejandro Garc\'ia L\'opez}
+
+%-----------------------------------------------------------------------------------
+\ShortHeadings{Informe de Proyecto}{Leonel Alejandro Garc\'ia L\'opez}
+%===================================================================================
+
+
+
+%===================================================================================
+% DOCUMENTO
+%-----------------------------------------------------------------------------------
+\begin{document}
+
+%-----------------------------------------------------------------------------------
+% NO BORRAR ESTA LINEA!
+%-----------------------------------------------------------------------------------
+\twocolumn[
+%-----------------------------------------------------------------------------------
+
+\maketitle
+
+%===================================================================================
+% Resumen y Abstract
+%-----------------------------------------------------------------------------------
+\selectlanguage{spanish} % Para producir el documento en Español
+
+%-----------------------------------------------------------------------------------
+% Resumen en Español
+%-----------------------------------------------------------------------------------
+
+%-----------------------------------------------------------------------------------
+% English Abstract
+%-----------------------------------------------------------------------------------
+\vspace{0.5cm}
+
+%-----------------------------------------------------------------------------------
+% Palabras clave
+%-----------------------------------------------------------------------------------
+
+%-----------------------------------------------------------------------------------
+% Temas
+%-----------------------------------------------------------------------------------
+\begin{topics}
+	Simulación, Eventos Discretos
+\end{topics}
+
+
+%-----------------------------------------------------------------------------------
+% NO BORRAR ESTAS LINEAS!
+%-----------------------------------------------------------------------------------
+\vspace{0.8cm}
+]
+%-----------------------------------------------------------------------------------
+
+
+%===================================================================================
+
+%===================================================================================
+% Introducción
+%-----------------------------------------------------------------------------------
+\section{Introducción}
+%-----------------------------------------------------------------------------------
+  Como proyecto se propuso simular un ambiente donde intervienen agentes correspondiente a una casa. El ambiente es discreto y tiene la forma de un rect\'angulo de $N, M$ . El ambiente es de informaci\'on completa, por tanto todos los agentes conocen toda la informaci\'on sobre el agente. El ambiente puede variar aleatoriamente cada $t$ unidades de tiempo. El valor de $t$ es conocido. Las acciones que realizan los agentes ocurren por turnos. En un turno, los agentes realizan sus acciones, una sola por cada agente, y modifican el medio sin que este var\'ie a no ser que cambie por una acci\'on de los agentes. En el siguiente, el ambiente puede variar. Si es el momento de cambio del ambiente, ocurre primero el cambio natural del ambiente y luego la variaci\'on aleatoria.
+  
+  En una unidad de tiempo ocurren el turno del agente y el turno de cambio del ambiente. Los elementos que pueden existir en el ambiente son obst\'aculos, suciedad, ni\~nos, el corral y los agentes que son llamados Robots de Casa.  
+%===================================================================================
+
+\subsection{Modelado e Implementaci\'on}
+
+ El modelo empleado en la simulación, se baso en $3$ m\'odulos principalmente \textit{commons}, \textit{environment} y \textit{agents}. En el modulo de ambiente se encuentra una implementaci\'on de \textit{House} que no es mas que el ambiente en donde se desarrolla la simulaci\'on, contiene todas las funcionalidades necesarias para construir un campo aleatorio y manejar los distintos cambios que los objetos realizan, as\'i como hacer efectivas las acciones de los agentes en el terreno. 
+ 
+ Para construir un terreno es posible especificar la cantidad de obst\'aculos (o en por ciento), la cantidad de suciedad inicial (o en por ciento), la cantidad de bebes, un modelo para crear a los objetos de tipo bebe, un modelo de agente (con el cual se generan agentes), el tama\~no entrado como tupla ($Dimension(cols, rows)$), el tiempo \textit{t} en el que demora en variar el ambiente.
+ 
+ La clase \textit{House} tambi\'en se encarga de gestionar la variaci\'on que da lugar en el tablero cada \textit{t} momentos, donde asum\'i como variaci\'on cambiar a los chicos que est\'an fuera de los corrales, recolocar los corrales en nuevas posiciones(adyacentes entre si, de igual forma), reposicionar las suciedades, cambiar el lugar del o los agentes  asi como los obstaculos, todo esto aleatoriamente.
+ 
+ En el m\'etodo \textit{turn\_cycle} se encuentra el ciclo principal de nuestra simulaci\'on donde se le especifica si se dese paso a poso y si quiere una salida verbosa, en este ciclo como dice su nombre se suceden los turnos y el objetivo del Robot de Casa es mantener la casa (a.k.a el ambiente) limpia. Se considera la casa limpia si no m\'as del \textit{60 \%} de las casillas vac\'ias est\'an sucias. Se sabe que si la casa llega al \textit{60 \%} de casillas sucias el Robot es despedido e inmediatamente cesa la simulaci\'on. Si el Robot ubica a todos los ni\~nos en el corral y el \textit{100 \%} de las casillas est\'an limpias tambi\'en cesa la simulaci\'on. Estos son llamados estados finales. Debe programar el comportamiento del robot por cada turno as\'i como las posibles variaciones del ambiente. En este ciclo compruebo cada una de las condiciones anteriores antes de continuar al siguiente turno.
+ 
+ Luego est\'a las implementaciones en el modelo \textit{commons}, que refieren a lo com\'un usado entre \textit{environment} y \textit{agents}. En este m\'odulo encontramos las implementaciones \'utiles para:
+ \begin{itemize}
+ 	\item \textit{Directions}: referido a la lista de direcciones nombradas, se puede obtener con \textit{rdirs} una lista desordenada de direcciones, y otras mas funcionalidades necesarias en la direcci\'on.
+ 	\item \textit{Coordinates}(\textbf{NamedTuple}): referido a la posici\'on en el piso de la casa, con un m\'etodo \textit{on\_direction} para obtener la correspondiente posici\'on en la direcci\'on especificada.
+ 	\item \textit{CellContent}(\textbf{Enum}): referido a los contenido de celdas, \textit{Dirty}, \textit{Empty}, \textit{Obst\'acle} y \textit{Playpen}.
+ 	\item \textit{Dimensions}(\textbf{NamedTuple}): referido a la dimensi\'on del tablero.
+ 	\item \textit{distance}(\textbf{funci\'on}):  funci\'on que describe la distancia, de forma que a partir del par\'ametro nombrado \textit{extended} se escoge uno u otro sistema de medici\'on de distancias.
+ 	\item \textit{SimulationResult}(\textbf{NamedTuple}): tipo para almacenar de una manera estructurada la informaci\'on obtenida de una simulaci\'on concluida.
+ 	\item \textit{AgentAction}(\textbf{Enum}) y \textit{ChildAction}(\textbf{Enum}): para enumerar las posibles acciones que se pueden realizar y que en caso de escoger un acci\'on el ambiente ejecuta dicha acci\'on sobre el agente/chico en acci\'on
+ \end{itemize}
+
+
+ Por \'ultimo tenemos el m\'odulo de agentes o \textit{agents} que contiene las implementaciones para estos dada diferentes estrateg\'ias, percepci\'on, etc. Todo agente hereda del tipo \textit{HouseAgent} que contiene implementaciones \'utiles para sus descendientes pero no posee una implementaci\'on precisa del m\'etodo empleado por el ambiente para cuestionar la acci\'on a realizar en el turno actual, el m\'etodo \textit{Action}. Este b\'asicamente contiene un campo \textit{carrying} y un campo \textit{coord} con la posici\'on en la casa asociada.
+
+ Tipos Concretos de agentes: 
+ 
+ \textbf{DummyRobot}: se mueve aleatoriamente (con doble paso si es posible) esto con ninguna influencia del ambiente, recoge al chico si est\'a en la celda actual y deja al chico si se encuentra en la casilla de corral, as\'i como tambi\'en recoge basura si esta en el camino err\'atico.
+
+ \textbf{FocusedRobot}: esta ya es una implementaci\'on m\'as avanzada de robot de limpieza, este tiene una especie de objetivo o goal y hasta que no finalice llegando a su objetivo, no realiza otra tarea que no est\'e relacionada. (Avanza solo con un foco, si no tiene foco se queda en el lugar)
+ 
+%===================================================================================
+% Desarrollo11
+%-----------------------------------------------------------------------------------
+\section{Simulación}
+%-----------------------------------------------------------------------------------
+  	
+\subsection{Resultados Obtenidos}
+%	Para un total de 250 barcos como m\'aximo, los resultados de \textit{tiempos de espera} para todos los barcos en total %fueron de entre $[220, 398]$ minutos, para cada barco que entra al dique un m\'aximo de $1.7$ minutos y un m\'inimo de %$0.50$ minutos aproximadamente, a continuaci\'on algunos ejemplos:
+%	\\
+%	
+%	\begin{tabular}{ll}
+%		Total    Ships: &247\\
+%		Total  Awaited: &274.39267537714954\\
+%		Median Awaited: &1.1109015197455447\\
+%	\end{tabular}
+%
+%		-----------------------------------\\
+%
+%	\begin{tabular}{ll}
+%		Total    Ships: &246\\
+%		Total  Awaited: &319.00497020011363\\
+%		Median Awaited: &1.2967681715451773\\
+%	\end{tabular}
+%
+%		-----------------------------------\\
+%		
+%	\begin{tabular}{ll}
+%		Total    Ships: &244\\
+%		Total  Awaited: &321.1813121762692\\
+%		Median Awaited: &1.3163168531814313\\
+%	\end{tabular}
+%
+%		-----------------------------------\\
+	
+		
+
+\end{document}
+
+%===================================================================================
