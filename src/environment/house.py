@@ -280,7 +280,7 @@ class House:
     def isRandomizeTime(self):
         return not (self.turn % self.time_interval) and self.turn > 0
 
-    def execute_agent_action(self, agent, action):
+    def execute_agent_actions(self, agent, actions):
         pass
 
     def available_directions(self, coord: Coordinates, double_stepping=False):

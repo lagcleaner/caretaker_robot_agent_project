@@ -9,29 +9,17 @@ class AgentAction(Enum):
     MoveSouth = 3
     MoveWest = 4
     #
-    MoveNorthDouble = 5
-    MoveEastDouble = 6
-    MoveSouthDouble = 7
-    MoveWestDouble = 8
+    CarryAChild = 5
+    DropAChild = 6
     #
-    CarryAChild = 9
-    DropAChild = 10
+    Clean = 7
     #
-    Clean = 11
-    #
-    Stay = 12
+    Stay = 8
 
     @staticmethod
     def todir(action) -> Tuple[int, int]:
-        assert action.value < 9, 'No direction available'
-        return Directions.ALL[action.value - 1 % 4]
-
-    @staticmethod
-    def steps(action) -> int:
-        if action.value < 9:
-            return action.value - 1 // 4 + 1
-        else:
-            return 0  # No direction
+        assert 1 <= action.value <= 4, 'No direction available'
+        return Directions.ALL[action.value - 1]
 
 
 class ChildAction(Enum):
