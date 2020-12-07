@@ -4,6 +4,7 @@ from queue import Queue
 from ..commons.directions import Directions
 from ..commons.coordinates import Coordinates
 from ..commons.actions import AgentAction
+from ..commons.cellcontent import CellContent
 
 
 class HouseAgent:
@@ -25,7 +26,9 @@ class HouseAgent:
     def adyacents(self, env, distance=1) -> Sequence[Coordinates]:
         return env.available_directions(self.coord, distance == 2)
 
-    def bfs(self, env_info, coord: Coordinates, condition) -> Any:
+    def bfs(self, env_info, coord: Coordinates, condition) -> Coordinates:
+        if condition(env_info, coord):
+            return coord
         queue = Queue()
         visited = set()
         #
@@ -35,12 +38,12 @@ class HouseAgent:
         while not queue.empty():
             c = queue.get()
             #
-            for dr in Directions.ALL_EXTENDED:
+            for dr in Directions.ALL:
                 ca = Coordinates.on_direction(c, dr)
-                if ca in visited or not env_info.in_range(coord):
+                if ca in visited or not env_info.in_range(ca):
                     continue
                 if condition(env_info, ca):
                     return ca
-                visited.add(c)
+                visited.add(ca)
                 queue.put(ca)
         return None
