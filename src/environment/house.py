@@ -116,7 +116,7 @@ class House:
                     break
 
     def occuped(self, coord): return (
-        any(a.coord == coord for a in self.agents) and
+        any(a.coord == coord for a in self.agents) or
         any(ch.coord == coord for ch in self.children)
     )
 
