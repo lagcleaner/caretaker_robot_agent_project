@@ -235,10 +235,11 @@ class House:
                 print(self.agents)
             if stepbystep:
                 input()
+
             # agents actions
-            # for agent in self.agents:
-            #     action = agent.action(self)
-            #     self.execute_agent_action(agent, action)
+            for agent in self.agents:
+                actions = agent.action(self)
+                self.execute_agent_actions(agent, actions)
 
             # children actions
             coords = []
