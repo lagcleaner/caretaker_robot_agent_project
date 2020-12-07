@@ -18,7 +18,7 @@ class HouseAgent:
 
     @property
     def doble_steping_allowed(self) -> bool:
-        raise NotImplementedError
+        return not (self.carrying is None)
 
     def adyacents(self, env, distance=1) -> Sequence[Coordinates]:
         return env.available_directions(self.coord, distance == 2)
