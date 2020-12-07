@@ -1,3 +1,12 @@
+from src.environment.house import House
+from src.commons.dimensions import Dimensions
+from src.commons.cellcontent import CellContent
+from src.agents import HouseAgent
 
 if __name__ == "__main__":
-    pass
+    house = House(
+        Dimensions(15, 15), HouseAgent,
+        dirtyCells_percent=0, obstacleCells_percent=30,
+        number_of_children=3
+    )
+    house.turn_cycle(stepbystep=True)
