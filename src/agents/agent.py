@@ -1,4 +1,6 @@
-from typing import List, Tuple, Sequence
+from typing import List, Tuple, Sequence, Any
+from queue import Queue
+
 from ..commons.directions import Directions
 from ..commons.coordinates import Coordinates
 from ..commons.actions import AgentAction
@@ -17,8 +19,28 @@ class HouseAgent:
         raise NotImplementedError
 
     @property
-    def doble_steping_allowed(self) -> bool:
+    def double_steping_allowed(self) -> bool:
         return not (self.carrying is None)
 
     def adyacents(self, env, distance=1) -> Sequence[Coordinates]:
         return env.available_directions(self.coord, distance == 2)
+
+    def bfs(self, env_info, coord: Coordinates, condition) -> Any:
+        queue = Queue()
+        visited = set()
+        #
+        queue.put(coord)
+        visited.add(coord)
+        #
+        while not queue.empty():
+            c = queue.get()
+            #
+            for dr in Directions.ALL_EXTENDED:
+                ca = Coordinates.on_direction(c, dr)
+                if ca in visited or not env_info.in_range(coord):
+                    continue
+                if condition(env_info, ca):
+                    return ca
+                visited.add(c)
+                queue.put(ca)
+        return None

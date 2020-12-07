@@ -18,6 +18,8 @@ class AgentAction(Enum):
     DropAChild = 10
     #
     Clean = 11
+    #
+    Stay = 12
 
     @staticmethod
     def todir(action) -> Tuple[int, int]:
