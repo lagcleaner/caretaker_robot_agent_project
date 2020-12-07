@@ -51,9 +51,10 @@ class Directions:
         return choice(directs)
 
     @ staticmethod
-    def rdirs(cls, extended_directions=False) -> List[Tuple[int, int]]:
+    def rdirs(extended_directions=False) -> List[Tuple[int, int]]:
         if extended_directions:
-            directs = Directions.ALL_EXTENDED
+            directs = Directions.ALL_EXTENDED.copy()
         else:
-            directs = Directions.ALL
-        return shuffle(directs)
+            directs = Directions.ALL.copy()
+        shuffle(directs)
+        return directs
