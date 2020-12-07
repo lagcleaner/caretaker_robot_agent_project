@@ -10,6 +10,9 @@ class Child:
         self.coord = coord
         self.holded = False
         self.in_playpen = False
+    def __str__(self):
+        return f'Child<{self.coord}, holded: {self.holded}>'
+    __repr__ = __str__
 
     def action(self, env):
         pass
