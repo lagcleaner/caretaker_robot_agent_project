@@ -126,12 +126,15 @@ class House:
         count = n-1
         connected = self.connected_cells(initial)
         ady: Coordinates = None
+        playpens = [initial]
         for _ in range(count):
             try:
                 ady = next(connected)
             except StopIteration:
                 raise Exception('not enought space')
             self.floor[ady.col][ady.row] = CellContent.Playpen
+            playpens.append(ady)
+        return playpens
 
     def set_random_nagents(self, n, agentModel=None, objs: List[HouseAgent] = None):
         assert agentModel or objs, 'invalid arguments'
@@ -163,7 +166,7 @@ class House:
                     ch = None
                     if objs:
                         ch = objs.pop()
-                        ch.coordinates = coord
+                        ch.coord = coord
                     else:
                         ch = childModel(coord)
                     self.children.append(ch)
