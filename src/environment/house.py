@@ -171,8 +171,10 @@ class House:
 
     # endregion
 
+    # region Enviroment Change
     def randomize(self):
         old_floor = self.floor
+        old_children = self.children
         self.floor = [
             [
                 CellContent.Empty
@@ -180,35 +182,40 @@ class House:
             ]
             for _ in range(self.dim.cols)
         ]
-        self.playpens = []
-        ndirt = (
+        self.children = []
+        free_children = []
+        children_in_playpens = []
+
+        ndirt = sum(
             cell == CellContent.Dirty
             for row in old_floor
             for cell in row
         )
-        free_children = []
-        children_in_playpens = []
-        for child in self.children:
-            if not (child.holded or child.in_playpen):
+        for child in old_children:
+            if not (child.holded or child.in_playpen(old_floor)):
                 free_children.append(child)
-            if child.in_playpen:
+            if child.in_playpen(old_floor):
                 children_in_playpens.append(child)
-        self.set_random_nplaypens(self.nchildren)
+        playpens = self.set_random_nplaypens(self.nchildren)
+        # set children
         selected = set()
         for child in children_in_playpens:
             while True:
-                coord = choice(self.playpens)
+                coord = choice(playpens)
                 if coord in selected:
                     continue
                 selected.add(coord)
                 child.coord = coord
+                break
+        print('free_children: ', free_children)
+        print('children_playpen: ', children_in_playpens)
 
         self.set_random_nCellTypes(self.nobstacles, CellContent.Obstacle)
         self.set_random_nCellTypes(ndirt, CellContent.Dirty)
         self.set_random_nagents(self.nagents, objs=self.agents)
-        self.set_random_nchildren(self.nchildren, objs=free_children)
-
-    # shuffle board
+        if free_children:
+            self.set_random_nchildren(self.nchildren, objs=free_children)
+    # endregion
 
     # region Flow
 
