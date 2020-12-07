@@ -16,7 +16,7 @@ class HouseAgent:
         return f'Agent<{self.coord}, carrying({self.carrying != None})>'
     __repr__ = __str__
 
-    def action(self, env_info) -> AgentAction:
+    def action(self, env_info) -> [AgentAction]:
         raise NotImplementedError
 
     @property
