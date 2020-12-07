@@ -223,36 +223,48 @@ class House:
     # region Flow
 
     def turn_cycle(self, verbose=False, stepbystep=False):
+        print('Initialized: ', end='')
         while (
                 self.turn < self.nturns and   # time end
                 self.dirt_percent <= 60 and   # too dirty to continue
                 not self.everythingIsClean()  # all children in playpens and all cells clean
         ):
+            if stepbystep or verbose:
+                print(self)
+                print(self.children)
+                print(self.agents)
+            if stepbystep:
+                input()
             # agents actions
             # for agent in self.agents:
             #     action = agent.action(self)
             #     self.execute_agent_action(agent, action)
 
-            # # children actions
-            # for child in self.children:
-            #     action = child.action(self)
-            #     self.execute_child_action(child, action)
+            # children actions
+            coords = []
+            for child in self.children:
+                action = child.action(self)
+                coord = self.execute_child_action(child, action)
+                if verbose or stepbystep:
+                    print(child, action)
+                if self[coord] != CellContent.Playpen and not child.holded:
+                    coords.append(coord)
+                    coords.extend(self.get_adyacents(coord, extended=True))
+            self.dirty(coords)
 
             # randomize environment
-            if self.isRandomizeTime():
-                self.randomize()
+            # if self.isRandomizeTime():
+            #     self.randomize()
 
-            if stepbystep or verbose:
-                print(self)
-            if stepbystep:
-                input()
             self.turn += 1
+
+        # Conclusion
         if self.everythingIsClean():
             return SimulationResult(conclusion=Conclusion.CompletedTask, dirt=0)
         elif self.dirt_percent > 60:
-            return SimulationResult(conclusion=Conclusion.FailedTask, dirt=sum(cell == CellContent.Dirty for cell in row for row in self.floor))
+            return SimulationResult(conclusion=Conclusion.FailedTask, dirt=sum(cell == CellContent.Dirty for row in self.floor for cell in row))
         elif self.turn == self.nturns:
-            return SimulationResult(conclusion=Conclusion.StabilizedHouse, dirt=sum(cell == CellContent.Dirty for cell in row for row in self.floor))
+            return SimulationResult(conclusion=Conclusion.StabilizedHouse, dirt=sum(cell == CellContent.Dirty for row in self.floor for cell in row))
         else:
             raise Exception('undetermined status')
 
