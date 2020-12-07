@@ -274,23 +274,83 @@ class House:
                 self[child.coord] == CellContent.Playpen
                 for child in self.children
             )
-            and not any(cell == CellContent.Dirty for cell in row for row in self.floor)
+            and not any(cell == CellContent.Dirty for row in self.floor for cell in row)
         )
 
     def isRandomizeTime(self):
-        pass
+        return not (self.turn % self.time_interval) and self.turn > 0
 
     def execute_agent_action(self, agent, action):
         pass
 
-    def execute_child_action(self, child, action):
-        pass
+    def available_directions(self, coord: Coordinates, double_stepping=False):
+        dirs = []
+        border = double_stepping + 1
+        if coord.col < self.dim.cols-border:
+            dirs.append(Directions.East)
+        if coord.row < self.dim.rows-border:
+            dirs.append(Directions.South)
+        if coord.col > border-1:
+            dirs.append(Directions.West)
+        if coord.row > border-1:
+            dirs.append(Directions.North)
+        return dirs
 
-    @ property
+    def execute_child_action(self, child, action):
+        coord = child.coord
+        if action == ChildAction.Stay:
+            return coord
+        if action.value < 5:  # Moving Actions
+            direct = ChildAction.todir(action)
+            next_coord = Coordinates.on_direction(child.coord, direct)
+
+            if self[next_coord] == CellContent.Empty:
+                child.coord = next_coord
+                return coord
+            elif self[next_coord] == CellContent.Obstacle and self.push_if_posible(next_coord, direct):
+                child.coord = next_coord
+                self[next_coord] = CellContent.Empty
+                return coord
+            else:
+                return coord
+
+    def push_if_posible(self, coord, direct):
+        next_coord = Coordinates.on_direction(coord, direct)
+        print(next_coord, self.dim)
+        if not self.in_range(next_coord):
+            return False
+        if self[next_coord] == CellContent.Empty or (
+            self[next_coord] == CellContent.Obstacle and
+            self.push_if_posible(
+                next_coord, direct)
+        ):
+            self[next_coord] = self[coord]
+            return True
+        else:
+            return False
+
+    def dirty(self, possible_dirt: List[Coordinates]):
+        count = (
+            1 if self.nchildren == 1 else
+            3 if self.nchildren == 2 else 6
+        )
+        possible_dirt = [
+            c for c in possible_dirt if self[c] == CellContent.Empty and not self.occuped(c)
+        ]
+
+        for c in possible_dirt:
+            if count == 0:
+                break
+            if self[c] == CellContent.Empty and not self.occuped(c):
+                messy = random() < 3 / 5
+                self[c] = CellContent.Dirty if messy else self[c]
+                count -= 1
+
+    @property
     def house_is_clean(self):
         return self.dirt_percent < 60
 
-    @ property
+    @property
     def dirt_percent(self):
         dirty_floor = 0
         empty_floor = 0
@@ -310,30 +370,40 @@ class House:
 
         return (100 * dirty_floor // empty_floor)
 
-    @ property
+    @property
     def clean_percent(self):
         return 100 - self.dirt_percent
     # endregion
 
     # region Commons
+    def in_range(self, coord):
+        return (0 <= coord[0] < self.dim.cols and 0 <= coord[1] < self.dim.rows)
+
+    def get_adyacents(self, coord, extended=False):
+        assert not (coord is None)
+        dirs = Directions.rdirs(extended_directions=True)
+        return (
+            Coordinates.on_direction(coord, dr)
+            for dr in dirs
+            if 0 < coord.col + dr[0] < self.dim.cols-1 and
+            0 < coord.row + dr[1] < self.dim.rows-1
+        )
 
     def connected_cells(self, coord, extended=False):
         dirs = Directions.ALL_EXTENDED if extended else Directions.ALL
-        adys = (
-            Coordinates(coord.col + dc, coord.row + dr)
+        adys = list(
+            Coordinates.on_direction(coord, (dc, dr))
             for dc, dr in dirs
-            if coord.col + dc < self.dim.cols and
-            coord.row + dr < self.dim.rows
+            if self.in_range((coord.col + dc, coord.row + dr))
         )
         shuffle(adys)
         while adys:
             ady = adys.pop()
             yield ady
-            adys += (
-                Coordinates(ady.col + dc, ady.row + dr)
+            adys += list(
+                Coordinates.on_direction(ady, (dc, dr))
                 for dc, dr in dirs
-                if ady.col + dc < self.dim.cols and
-                ady.row + dr < self.dim.rows
+                if self.in_range((ady.col + dc, ady.row + dr))
             )
             shuffle(adys)
 
