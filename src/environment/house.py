@@ -58,6 +58,10 @@ class House:
         c, r = index
         return self.floor[c][r]
 
+    def __setitem__(self, index: Coordinates, value):
+        c, r = index
+        self.floor[c][r] = value
+
     def __str__(self):
         turn = f'(turn: {self.turn}/{self.nturns})\n'
         res = ''
