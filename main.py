@@ -9,4 +9,5 @@ if __name__ == "__main__":
         dirtyCells_percent=0, obstacleCells_percent=30,
         number_of_children=3
     )
-    house.turn_cycle(stepbystep=True)
+    conclusion = house.turn_cycle(stepbystep=True)
+    print(conclusion)
