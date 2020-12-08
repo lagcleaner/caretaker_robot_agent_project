@@ -1,7 +1,7 @@
 from src.environment.house import House
 from src.commons.dimensions import Dimensions
 from src.commons.cellcontent import CellContent
-from src.agents import HouseAgent
+from src.agents import DummyRobot, FocusedRobot
 
 if __name__ == "__main__":
     house = House(
