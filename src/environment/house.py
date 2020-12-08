@@ -221,7 +221,6 @@ class House:
     # region Flow
 
     def turn_cycle(self, verbose=False, stepbystep=False, warnings=False):
-        print('Initialized...')
         while (
                 self.turn < self.nturns and   # time end
                 self.dirt_percent <= 60 and   # too dirty to continue
@@ -270,7 +269,6 @@ class House:
 
             self.turn += 1
 
-        print('Concluded...')
         # Conclusion
         if self.everythingIsClean():
             return SimulationResult(conclusion=Conclusion.CompletedTask, dirt=0)
