@@ -116,7 +116,7 @@ def runNtimes(N: int, agentModels: dict, dimension: Dimensions, **kwrgs):
         for _ in range(N):
             house = House(dimension, model, **kwrgs,)
             result = house.turn_cycle()
-            print(modelName, result)
+            # print(modelName, result)
             results.append(result)
         all_results[modelName] = results
     #
@@ -144,25 +144,29 @@ def process_results(results: list) -> SimulationCompiledResult:
     return SimulationCompiledResult(
         conclusion=concl,
         dirtyAverage=dirty_amounts/len(results),
-        failedTaskAverage=failed/len(results),
-        completedTaskAverage=completed/len(results),
+        failedTasksPercent=100*failed/len(results),
+        completedTasksPercent=100*completed/len(results),
     )
 
 
 def print_board_params(dim, **kwargs):
-    pass
+    print(dim, ',', ', '.join([f'{k}: {a}' for k, a in kwargs.items()]))
 
 
 if __name__ == "__main__":
     N = 30
 
     agentModels = {
-        'ShortPerception(DummyRobot)': DummyRobot,
+        'ShortPerception     (DummyRobot)': DummyRobot,
         'LongTermPerception(FocusedRobot)': FocusedRobot
     }
+    print('-'*60)
 
     for dim, kwargs in TESTS:
         results = runNtimes(N, agentModels, dim, **kwargs)
+        print_board_params(dim, **kwargs)
+        print()
         for model, res in results.items():
-            pprint((model, res))
-        input()
+            print(model, ': ')
+            print(res)
+        print('-'*60)
