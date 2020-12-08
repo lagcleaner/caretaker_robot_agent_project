@@ -16,5 +16,5 @@ class SimulationResult(NamedTuple):
 class SimulationCompiledResult(NamedTuple):
     conclusion: Conclusion
     dirtyAverage: float
-    failedTaskAverage: float
-    completedTaskAverage: float
+    failedTasksPercent: float
+    completedTasksPercent: float
