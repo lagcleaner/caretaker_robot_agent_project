@@ -63,9 +63,10 @@ class House:
         self.floor[c][r] = value
 
     def __str__(self):
-        turn = f'(turn: {self.turn}/{self.nturns})\n'
+        turn = f'(turn: {self.turn}/{self.nturns})'
         res = ''
         for r in range(len(self.floor[0])):
+            res += '\n'
             for c in range(len(self.floor)):
                 content = None
                 if self.floor[c][r] == CellContent.Empty:
@@ -79,10 +80,9 @@ class House:
                 #
                 if any(ag.coord == (c, r) for ag in self.agents):
                     content = 'R'
-                elif any(ch.coord == (c, r) for ch in self.children):
+                elif any(ch.coord == (c, r) for ch in self.children if not ch.holded and not ch.in_playpen(self.floor)):
                     content = 'C'
                 res += content
-            res += '\n'
         return turn + res
     # endregion
 
@@ -185,9 +185,9 @@ class House:
             ]
             for _ in range(self.dim.cols)
         ]
-        self.children = []
-        free_children = []
-        children_in_playpens = []
+        self.children: List[Child] = []
+        free_children: List[Child] = []
+        children_in_playpens: List[CellContent] = []
 
         ndirt = sum(
             cell == CellContent.Dirty
@@ -210,39 +210,46 @@ class House:
                 selected.add(coord)
                 child.coord = coord
                 break
-        print('free_children: ', free_children)
-        print('children_playpen: ', children_in_playpens)
 
         self.set_random_nCellTypes(self.nobstacles, CellContent.Obstacle)
         self.set_random_nCellTypes(ndirt, CellContent.Dirty)
         self.set_random_nagents(self.nagents, objs=self.agents)
         if free_children:
-            self.set_random_nchildren(self.nchildren, objs=free_children)
+            self.set_random_nchildren(len(free_children), objs=free_children)
     # endregion
 
     # region Flow
 
-    def turn_cycle(self, verbose=False, stepbystep=False):
-        print('Initialized: ', end='')
+    def turn_cycle(self, verbose=False, stepbystep=False, warnings=False):
+        print('Initialized...')
         while (
                 self.turn < self.nturns and   # time end
                 self.dirt_percent <= 60 and   # too dirty to continue
                 not self.everythingIsClean()  # all children in playpens and all cells clean
         ):
             if stepbystep or verbose:
+                # print('  <previus_status>')
                 print(self)
-                print(self.children)
-                print(self.agents)
+                # print('children:', self.children)
+                # print('agents:  ', self.agents)
             if stepbystep:
                 input()
 
-            # agents actions
+            if verbose or stepbystep:
+                print('  <agents_actions>')
             for agent in self.agents:
                 actions = agent.action(self)
-                self.execute_agent_actions(agent, actions)
+                if verbose or stepbystep:
+                    print(agent, actions)
+                for action in actions:
+                    if self.execute_agent_action(agent, action, warnings=warnings):
+                        break
+            if verbose or stepbystep:
+                print('  <agents_actions/>')
 
-            # children actions
             coords = []
+            if verbose or stepbystep:
+                print('  <child_actions>')
             for child in self.children:
                 action = child.action(self)
                 coord = self.execute_child_action(child, action)
@@ -252,13 +259,18 @@ class House:
                     coords.append(coord)
                     coords.extend(self.get_adyacents(coord, extended=True))
             self.dirty(coords)
+            if verbose or stepbystep:
+                print('  <child_actions/>\n')
 
             # randomize environment
-            # if self.isRandomizeTime():
-            #     self.randomize()
+            if self.isRandomizeTime():
+                if verbose or stepbystep:
+                    print('  <environment_variation/>')
+                self.randomize()
 
             self.turn += 1
 
+        print('Concluded...')
         # Conclusion
         if self.everythingIsClean():
             return SimulationResult(conclusion=Conclusion.CompletedTask, dirt=0)
@@ -281,8 +293,75 @@ class House:
     def isRandomizeTime(self):
         return not (self.turn % self.time_interval) and self.turn > 0
 
-    def execute_agent_actions(self, agent, actions):
-        pass
+    def execute_agent_action(self, agent, action, warnings=False):
+        if action == AgentAction.Stay:
+            return False
+        if action == AgentAction.Clean:
+            if self[agent.coord] == CellContent.Dirty:
+                self[agent.coord] = CellContent.Empty
+                return False
+            else:
+                if warnings:
+                    print('warning: attempting to clean in a clean cell')
+                return False
+        if action == AgentAction.CarryAChild:
+            if agent.carrying is None:
+                child_on_floor: Child = None
+                for child in self.children:
+                    if not child.holded and child.coord == agent.coord:
+                        child_on_floor = child
+                if child_on_floor is None:
+                    if warnings:
+                        print(
+                            'warning: attempting to carry a child with not a single one')
+                    return False
+                child_on_floor.holded = True
+                agent.carrying = child_on_floor
+                return True
+            else:
+                if warnings:
+                    print('warning: attempting to carry a child with one inside')
+                return False
+        if action == AgentAction.DropAChild:
+            if not agent.carrying is None:
+                child_in_playpen: Child = None
+                for child in self.children:
+                    if not child.holded and child.coord == agent.coord:
+                        child_in_playpen = child
+                        break
+                if not child_in_playpen is None:
+                    if warnings:
+                        print(
+                            'warning: attempting to drop a child with where is occuped')
+                    return
+                child = agent.carrying
+                child.coord = agent.coord
+                child.holded = False
+                agent.carrying = None
+                return True
+            else:
+                if warnings:
+                    print(
+                        'warning: attempting to drop a child with not a single one inside')
+                return False
+        new_coord = Coordinates.on_direction(
+            agent.coord, AgentAction.todir(action)
+        )
+        if not self.in_range(new_coord):
+            if warnings:
+                print('warning: attempting to move out of the house limits')
+            return False
+        if (
+            self[new_coord] == CellContent.Obstacle or (
+                self[new_coord] == CellContent.Playpen and
+                any(c for c in self.children if c.coord == new_coord)
+            )
+        ):
+            if warnings:
+                print('warning: attempting to move to a full playpen or obstacle')
+            return False
+        agent.coord = new_coord
+        return False
 
     def available_directions(self, coord: Coordinates, double_stepping=False):
         dirs = []
@@ -317,7 +396,6 @@ class House:
 
     def push_if_posible(self, coord, direct):
         next_coord = Coordinates.on_direction(coord, direct)
-        print(next_coord, self.dim)
         if not self.in_range(next_coord):
             return False
         if self[next_coord] == CellContent.Empty or (

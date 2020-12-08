@@ -14,7 +14,7 @@ from .utils import Infinite
 class FocusedRobot(HouseAgent):
     '''
         As the name describes focus the attention and dont stop until finish,
-        the tasks, once is choicing a target, the preference is setted like:
+        the tasks, the preference is setted like:
 
         `focus_child = True` then until the last kid out of the playpen does
         not set the next goal
@@ -31,9 +31,9 @@ class FocusedRobot(HouseAgent):
 
     def action(self, env_info) -> [AgentAction]:
         if self.set_goal(env_info) is None:
-            # if there is no goal available
+            # if there is no goal available choice a random direction to move on
             return [AgentAction.Stay]
-        if self.coord == self.goal:
+        elif self.coord == self.goal:
             # if t is in the goal cell
             return [self.action_on_cell(env_info)]
         # move to the goal
@@ -52,7 +52,7 @@ class FocusedRobot(HouseAgent):
             cur_coord = Coordinates.on_direction(cur_coord, dr)
             cur_action = AgentAction(Directions.ALL.index(dr) + 1)
             if self.goal == cur_coord:
-                return [cur_action]
+                return actions + [cur_action]
             actions.append(cur_action)
             steps -= 1
 
@@ -71,12 +71,29 @@ class FocusedRobot(HouseAgent):
             #
             for dr in Directions.ALL:
                 ca = Coordinates.on_direction(c, dr)
-                if ca in path_d or not env_info.in_range(ca):
+                a_full_playpen = (
+                    env_info.in_range(ca) and
+                    env_info[ca] == CellContent.Playpen and
+                    any(
+                        ca for ch in env_info.children
+                        if ch.in_playpen(env_info.floor) and ca == ch.coord
+                    )
+                )
+
+                if (
+                    not env_info.in_range(ca) or
+                    ca in path_d or
+                    env_info[ca] == CellContent.Obstacle or
+                    any(ca == ag.coord for ag in env_info.agents) or
+                    (
+                        a_full_playpen
+                    )
+                ):
                     continue
                 if condition(env_info, ca):
                     path = [dr]
                     step_c = c
-                    while step_c == None:
+                    while step_c != None:
                         step_c, dirct = path_d.get(step_c, (None, None))
                         if step_c == None:
                             break
@@ -91,27 +108,33 @@ class FocusedRobot(HouseAgent):
     def action_on_cell(self, env_info):
         if env_info[self.coord] == CellContent.Dirty:
             return AgentAction.Clean
-        if env_info[self.coord] == CellContent.Playpen and not self.carrying is None:
-            return AgentAction.DropAChild
         if any(
-            child for child in env_info.childen
+            child
+            for child in env_info.children
             if child.coord == self.coord
         ):
-            return AgentAction.CarryAChild
+            if env_info[self.coord] != CellContent.Playpen and self.carrying is None:
+                return AgentAction.CarryAChild
+        elif env_info[self.coord] == CellContent.Playpen and not self.carrying is None:
+            return AgentAction.DropAChild
         return AgentAction.Stay
 
     def set_goal(self, env_info):
         self.goal = None
         self.directions_path = None
         #
-        if self.focus_child:
-            self.goal = self.set_next_child(env_info)
+        if self.carrying:
+            self.goal = self.nearest_playpen(env_info)
             if self.goal is None:
-                self.goal = self.set_next_dirt(env_info)
+                self.goal = self.nearest_dirt(env_info)
+        elif self.focus_child:
+            self.goal = self.nearest_child(env_info)
+            if self.goal is None:
+                self.goal = self.nearest_dirt(env_info)
         else:
-            self.goal = self.set_next_dirt(env_info)
+            self.goal = self.nearest_dirt(env_info)
             if self.goal is None:
-                self.goal = self.set_next_child(env_info)
+                self.goal = self.nearest_child(env_info)
 
         # build path if there is a goal
         if self.goal:
@@ -121,20 +144,31 @@ class FocusedRobot(HouseAgent):
             )
         return self.goal
 
-    def set_next_child(self, env_info):
+    def nearest_playpen(self, env_info):
+        full_playpens = set(
+            ch.coord for ch in env_info.children if ch.in_playpen(env_info.floor)
+        )
+        nearest_dirt = self.bfs(
+            env_info, self.coord,
+            lambda env, coord: env[coord] == CellContent.Playpen and
+            not (coord in full_playpens)
+        )
+        return nearest_dirt
+
+    def nearest_child(self, env_info):
         nearest_child = None
-        best_dist = Infinite()
+        best_dist = None
         for child in env_info.children:
-            if not child.in_playpen(env_info) and not child.holded:
+            if not child.in_playpen(env_info.floor) and not child.holded:
                 dist = distance(self.coord, child.coord)
                 nearest_child, best_dist = (
                     (child.coord, dist)
-                    if best_dist > dist
+                    if best_dist is None or best_dist > dist
                     else (nearest_child, best_dist)
                 )
         return nearest_child
 
-    def set_next_dirt(self, env_info):
+    def nearest_dirt(self, env_info):
         nearest_dirt = self.bfs(
             env_info, self.coord,
             lambda env, coord: env[coord] == CellContent.Dirty

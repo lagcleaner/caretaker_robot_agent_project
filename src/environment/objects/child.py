@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, random
 from ...commons import Coordinates, CellContent, ChildAction, Directions
 
 
@@ -12,6 +12,7 @@ class Child:
         self.holded = False
 
     def in_playpen(self, floor):
+        assert isinstance(floor, list) and isinstance(floor[0], list)
         return not self.holded and floor[self.coord[0]][self.coord[1]] == CellContent.Playpen
 
     def __str__(self):
@@ -19,14 +20,17 @@ class Child:
     __repr__ = __str__
 
     def action(self, env):
-        if self.holded or self.in_playpen(env.floor):
+        if self.holded or self.in_playpen(env.floor) or random() < 1/2:
             return ChildAction.Stay
         directs = env.available_directions(self.coord)
-        possible_directs = [
-            dr for dr in directs
-            if env[Coordinates.on_direction(self.coord, dr)] in
-            (CellContent.Empty, CellContent.Obstacle)
-        ]
+        possible_directs = []
+        for dr in directs:
+            ci = Coordinates.on_direction(self.coord, dr)
+            if (
+                env[ci] in (CellContent.Empty, CellContent.Obstacle) and
+                    not env.occuped(ci)
+            ):
+                possible_directs.append(dr)
         if possible_directs:
             direct = choice(possible_directs)
             if direct == Directions.North:

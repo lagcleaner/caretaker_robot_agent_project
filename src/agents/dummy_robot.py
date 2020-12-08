@@ -26,13 +26,15 @@ class DummyRobot(HouseAgent):
     def action_on_cell(self, env_info):
         if env_info[self.coord] == CellContent.Dirty:
             return AgentAction.Clean
-        if env_info[self.coord] == CellContent.Playpen and not self.carrying is None:
-            return AgentAction.DropAChild
         if any(
-            child for child in env_info.childen
+            child
+            for child in env_info.children
             if child.coord == self.coord
         ):
-            return AgentAction.CarryAChild
+            if env_info[self.coord] != CellContent.Playpen and self.carrying is None:
+                return AgentAction.CarryAChild
+        elif env_info[self.coord] == CellContent.Playpen and not self.carrying is None:
+            return AgentAction.DropAChild
 
     def next_move(self, env_info, coord, count_steps):
         if not count_steps:
@@ -42,11 +44,7 @@ class DummyRobot(HouseAgent):
             action = self.choice_move(env_info, coord)
             dr = AgentAction.todir(action)
             c = Coordinates.on_direction(coord, dr)
-        count_steps -= 1
-        if not count_steps:
-            return [action]
-        else:
-            return [action] + self.next_move(env_info, c, count_steps)
+        return [action] + self.next_move(env_info, c, count_steps-1)
 
     def choice_move(self, env_info, coord):
         return AgentAction(randint(1, 4))
