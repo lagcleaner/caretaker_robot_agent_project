@@ -3,6 +3,18 @@ from src.commons.dimensions import Dimensions
 from src.commons.cellcontent import CellContent
 from src.agents import DummyRobot, FocusedRobot
 
+
+def runNtimes(N: int, agentModels: dict, dimension: Dimensions, **kwrgs):
+    all_conclusions = {modelName: None for modelName in agentModels}
+    for modelName, model in agentModels.items():
+        conclusions = []
+        for _ in range(N):
+            house = House(dimension, model, **kwrgs)
+            conclusion = house.turn_cycle()
+            conclusions.append(conclusion)
+        all_conclusions[modelName] = conclusions
+    #
+    return all_conclusions
 if __name__ == "__main__":
     house = House(
         Dimensions(15, 15), HouseAgent,
