@@ -52,7 +52,7 @@
 % Autores
 %-----------------------------------------------------------------------------------
 \author{\\
-\name Leonel Alejandro Garc\'ia L\'opez\email \href{mailto:r.marti@estudiantes.matcom.uh.cu}{l.garcia3@estudiantes.matcom.uh.cu}
+\name Leonel Alejandro Garc\'ia L\'opez\email \href{mailto:l.garcia3@estudiantes.matcom.uh.cu}{l.garcia3@estudiantes.matcom.uh.cu}
 	\\ \addr Grupo C412
 }
 
@@ -128,7 +128,7 @@ Lic. Daniel Alejandro Valdés Pérez, \emph{Facultad de Matemática y Computaci�
 %-----------------------------------------------------------------------------------
 \section{Introducción}
 %-----------------------------------------------------------------------------------
-  Como proyecto se propuso simular un ambiente donde intervienen agentes correspondiente a una casa. El ambiente es discreto y tiene la forma de un rect\'angulo de $N, M$ . El ambiente es de informaci\'on completa, por tanto todos los agentes conocen toda la informaci\'on sobre el agente. El ambiente puede variar aleatoriamente cada $t$ unidades de tiempo. El valor de $t$ es conocido. Las acciones que realizan los agentes ocurren por turnos. En un turno, los agentes realizan sus acciones, una sola por cada agente, y modifican el medio sin que este var\'ie a no ser que cambie por una acci\'on de los agentes. En el siguiente, el ambiente puede variar. Si es el momento de cambio del ambiente, ocurre primero el cambio natural del ambiente y luego la variaci\'on aleatoria.
+  Como proyecto se propuso simular un ambiente donde intervienen agentes correspondiente a una casa. El ambiente es discreto y tiene la forma de un rect\'angulo $N$ x $M$. El ambiente es de informaci\'on completa, por tanto todos los agentes conocen toda la informaci\'on sobre el agente. El ambiente puede variar aleatoriamente cada $t$ unidades de tiempo. El valor de $t$ es conocido. Las acciones que realizan los agentes ocurren por turnos. En un turno, los agentes realizan sus acciones, una sola por cada agente, y modifican el medio sin que este var\'ie a no ser que cambie por una acci\'on de los agentes. En el siguiente, el ambiente puede variar. Si es el momento de cambio del ambiente, ocurre primero el cambio natural del ambiente y luego la variaci\'on aleatoria.
   
   En una unidad de tiempo ocurren el turno del agente y el turno de cambio del ambiente. Los elementos que pueden existir en el ambiente son obst\'aculos, suciedad, ni\~nos, el corral y los agentes que son llamados Robots de Casa.  
 %===================================================================================
@@ -144,14 +144,17 @@ Lic. Daniel Alejandro Valdés Pérez, \emph{Facultad de Matemática y Computaci�
  En el m\'etodo \textit{turn\_cycle} se encuentra el ciclo principal de nuestra simulaci\'on donde se le especifica si se dese paso a poso y si quiere una salida verbosa, en este ciclo como dice su nombre se suceden los turnos y el objetivo del Robot de Casa es mantener la casa (a.k.a el ambiente) limpia. Se considera la casa limpia si no m\'as del \textit{60 \%} de las casillas vac\'ias est\'an sucias. Se sabe que si la casa llega al \textit{60 \%} de casillas sucias el Robot es despedido e inmediatamente cesa la simulaci\'on. Si el Robot ubica a todos los ni\~nos en el corral y el \textit{100 \%} de las casillas est\'an limpias tambi\'en cesa la simulaci\'on. Estos son llamados estados finales. Debe programar el comportamiento del robot por cada turno as\'i como las posibles variaciones del ambiente. En este ciclo compruebo cada una de las condiciones anteriores antes de continuar al siguiente turno.
  
  Luego est\'a las implementaciones en el modelo \textit{commons}, que refieren a lo com\'un usado entre \textit{environment} y \textit{agents}. En este m\'odulo encontramos las implementaciones \'utiles para:
+ 
+ 
  \begin{itemize}
- 	\item \textit{Directions}: referido a la lista de direcciones nombradas, se puede obtener con \textit{rdirs} una lista desordenada de direcciones, y otras mas funcionalidades necesarias en la direcci\'on.
- 	\item \textit{Coordinates}(\textbf{NamedTuple}): referido a la posici\'on en el piso de la casa, con un m\'etodo \textit{on\_direction} para obtener la correspondiente posici\'on en la direcci\'on especificada.
- 	\item \textit{CellContent}(\textbf{Enum}): referido a los contenido de celdas, \textit{Dirty}, \textit{Empty}, \textit{Obst\'acle} y \textit{Playpen}.
- 	\item \textit{Dimensions}(\textbf{NamedTuple}): referido a la dimensi\'on del tablero.
- 	\item \textit{distance}(\textbf{funci\'on}):  funci\'on que describe la distancia, de forma que a partir del par\'ametro nombrado \textit{extended} se escoge uno u otro sistema de medici\'on de distancias.
- 	\item \textit{SimulationResult}(\textbf{NamedTuple}): tipo para almacenar de una manera estructurada la informaci\'on obtenida de una simulaci\'on concluida.
- 	\item \textit{AgentAction}(\textbf{Enum}) y \textit{ChildAction}(\textbf{Enum}): para enumerar las posibles acciones que se pueden realizar y que en caso de escoger un acci\'on el ambiente ejecuta dicha acci\'on sobre el agente/chico en acci\'on
+ 	\item \textit{Directions}: referido a la lista de direcciones nombradas, se puede obtener con \textit{rdirs} una lista desordenada de direcciones, as\'i como tambi\'en encapsula otras funcionalidades necesarias relacionadas.
+ 	\item \textit{Coordinates} (\textbf{NamedTuple}): referido a la posici\'on en el piso de la casa, con un m\'etodo \textit{on\_direction} para obtener la correspondiente posici\'on en la direcci\'on especificada.
+ 	\item \textit{CellContent} (\textbf{Enum}): referido a los contenido de celdas, \textit{Dirty}, \textit{Empty}, \textit{Obst\'acle} y \textit{Playpen}.
+ 	\item \textit{Dimensions} (\textbf{NamedTuple}): referido a la dimensi\'on del tablero.
+ 	\item \textit{distance} (\textbf{funci\'on}):  funci\'on que describe la distancia, de forma que a partir del par\'ametro nombrado \textit{extended} se escoge uno u otro sistema de medici\'on de distancias.
+ 	\item \textit{SimulationResult} (\textbf{NamedTuple}): tipo para almacenar de una manera estructurada la informaci\'on obtenida de una simulaci\'on concluida.
+ 	
+ 	\item \textit{AgentAction}(\textbf{Enum}) y \textit{ChildAction}(\textbf{Enum}): para enumerar las posibles acciones que se pueden realizar y que en caso de escoger un acci\'on el ambiente ejecuta dicha acci\'on sobre el agente/chico en acci\'on.
  \end{itemize}
 
 
@@ -160,45 +163,144 @@ Lic. Daniel Alejandro Valdés Pérez, \emph{Facultad de Matemática y Computaci�
  Tipos Concretos de agentes: 
  
  \textbf{DummyRobot}: se mueve aleatoriamente (con doble paso si es posible) esto con ninguna influencia del ambiente, recoge al chico si est\'a en la celda actual y deja al chico si se encuentra en la casilla de corral, as\'i como tambi\'en recoge basura si esta en el camino err\'atico.
-
- \textbf{FocusedRobot}: esta ya es una implementaci\'on m\'as avanzada de robot de limpieza, este tiene una especie de objetivo o goal y hasta que no finalice llegando a su objetivo, no realiza otra tarea que no est\'e relacionada. (Avanza solo con un foco, si no tiene foco se queda en el lugar)
  
+ Como idea principal para este \textit{Robot} est\'a la baja percepci\'on del ambiente que de alguna forma solo observa lo que tiene a su alcance, (suponiendo que no recibe toda la informaci\'on del ambiente), no tiene estrategia fija o por lo menos a largo plazo, m\'as all\'a del siguiente paso.
+
+ \textbf{FocusedRobot}: esta ya es una implementaci\'on m\'as avanzada de robot limpiador, este tiene una especie de objetivo o \textit{goal} y hasta que no llegue a su objetivo, no realiza otra tarea que no est\'e relacionada con el consecuente objetivo(Avanza solo con un foco, si no tiene foco se queda en el lugar)
+ 
+ Para este \'ultimo la idea pasa por una percepci\'on completa sobre el ambiente, que traza estrategias a largo plazo seg\'un las condiciones del mismo y de si mismo.
 %===================================================================================
 % Desarrollo11
 %-----------------------------------------------------------------------------------
 \section{Simulación}
 %-----------------------------------------------------------------------------------
-  	
-\subsection{Resultados Obtenidos}
-%	Para un total de 250 barcos como m\'aximo, los resultados de \textit{tiempos de espera} para todos los barcos en total %fueron de entre $[220, 398]$ minutos, para cada barco que entra al dique un m\'aximo de $1.7$ minutos y un m\'inimo de %$0.50$ minutos aproximadamente, a continuaci\'on algunos ejemplos:
-%	\\
-%	
-%	\begin{tabular}{ll}
-%		Total    Ships: &247\\
-%		Total  Awaited: &274.39267537714954\\
-%		Median Awaited: &1.1109015197455447\\
-%	\end{tabular}
-%
-%		-----------------------------------\\
-%
-%	\begin{tabular}{ll}
-%		Total    Ships: &246\\
-%		Total  Awaited: &319.00497020011363\\
-%		Median Awaited: &1.2967681715451773\\
-%	\end{tabular}
-%
-%		-----------------------------------\\
-%		
-%	\begin{tabular}{ll}
-%		Total    Ships: &244\\
-%		Total  Awaited: &321.1813121762692\\
-%		Median Awaited: &1.3163168531814313\\
-%	\end{tabular}
-%
-%		-----------------------------------\\
-	
-		
+Los ambientes que utilizamos para la obtenci\'on de alguna medida de efectividad de las implementaciones realizadas de agentes, fueron obtenidos a partir de los siguientes argumentos:
+\begin{itemize}
+	\item[Di]  Dimensi\'on del escenario.
+	\item[Nc]  N\'umero de ni\~nos en la casa.
+	\item[D\%] Por ciento de casillas sucias iniciales.
+	\item[O\%] Por ciento de obst\'aculos iniciales.
+	\item[T]  Tiempo cada cuanto se realizan las variaciones de ambiente.(donde el tiempo de la simulaci\'on es $T*100$)  
+\end{itemize}
 
+Los siguientes fueron los ambientes que tuve en cuenta para la obtenci\'on de resultados concluyentes sobre la eficacia de uno y otro modelo de robot.
+\\\\
+\begin{tabular}{|l|c|c|c|c|c|}
+	\hline
+	\textit{Amb}  &\textit{Di}& \textit{Nc(\%)}& \textit{D(\%)}& \textit{O(\%)}& \textit{T}  \\ 
+	\hline
+	A01 & (10, 10) & 3 & 0 & 0 & 10 \\
+	A02 & (15, 15) & 2 & 15 & 5 & 16 \\
+	A03 & (20, 20) & 1 & 25 & 2 & 11 \\
+	A04 & (15, 15) & 6 & 0 & 0 & 12 \\
+	A05 & (20, 20) & 6 & 12 & 5 & 12 \\
+	A06 & (20, 20) & 1 & 5 & 20 & 14 \\
+	A07 & (10, 10) & 1 & 20 & 5 & 14 \\
+	A08 & (15, 15) & 4 & 2 & 0 & 10 \\
+	A09 & (20, 20) & 4 & 3 & 1 & 14 \\
+	A10S & (25, 25) & 5 & 5 & 4 & 15 \\
+	\hline
+\end{tabular}
+
+
+\subsection{Resultados Obtenidos}
+Para un total de 30 corridas , por cada uno de los escenarios o ambientes distintos, a continuaci\'on los resultados concluyentes para cada ambiente y por cada implementaci\'on de agente, se mostrara en la tabla las tablas la cantidad de veces que cada uno completo la limpieza, mantuvo hasta el final un ambiente estable o fue despedido fallando en la limpieza, por otro lado el promedio de casillas sucias y la conclusi\'on final por ambiente, de si constituye en promedio un despido o no:
+
+\begin{itemize}
+	\item[C]: Completado
+	\item[S]: Estable
+	\item[F]: Fallo (o despido)
+	\item[FC]: Conclusi\'on Final (resultado a partir de la cantidad de ambientes fallados, estabilizados y completados)
+	
+\end{itemize}
+
+
+\subsection*{DummyRobot}
+
+
+\textbf{Agente ShortPerception     (DummyRobot):}
+
+
+\begin{tabular}{|l|c|c|c|c|}
+	\textit{Amb}  &\textit{C(\%)}& \textit{S(\%)}& \textit{F(\%)}& \textit{FC}  \\ 
+	\hline
+	A01  &0.0 &0.0 &100.0 &  F\\
+	A02  &0.0 &40.0 &60.0 & F\\
+	A03  &0.0 &93.4 &6.6 & S\\
+	A04  &0.0 &0.0 &100.0 & F\\
+	A05  &0.0 &0.0 &100.0 & F\\
+	A06  &0.0 &96.7 &3.3 &\\
+	A07  &76.6 &10.1 &13.3 & C\\
+	A08  &0.0 &0.0 &100.0 & F\\
+	A09  &0.0 &0.0 &100.0 & F\\
+	A10  &0.0 &0.0 &100.0 & F\\
+	
+\end{tabular}
+\\\\\\
+\textbf{Promedio de casillas sucias:}
+
+\begin{tabular}{|c|c|}
+	\textit{Amb}  &\textit{PCS}  \\ 
+	\hline
+	A01  &60 \\
+	A02  &87 \\
+	A03  &148 \\
+	A04  &135 \\
+	A05  &230 \\
+	A06  &85 \\
+	A07  &8 \\
+	A08  &136 \\
+	A09  &240 \\
+	A10  &364 \\
+	
+\end{tabular}
+\\\\
+
+Para la implementaci\'on con escasa percepci\'on se obtuvieron los datos y esperados en la mayor\'ia de los casos se tiene un despido o ambiente estabilizado, pero es poco probable completar un tablero con ninguna tarea o actitud para hacerlo.
+
+\subsection*{FocusedRobot}
+
+\textbf{Agente LongTermPerception (FocusedRobot:)}
+
+	
+	\begin{tabular}{|l|c|c|c|c|}
+		\textit{Amb}  &\textit{C(\%)}& \textit{S(\%)}& \textit{F(\%)}& \textit{FC}  \\ 
+		\hline
+		A01  &96.6 &0.0 &3.4.0 & C\\
+		A02  &100.0 &0.0 &0.0 & C\\
+		A03  &100.0 &0.0 &0.0 & C\\
+		A04  &40.0 &0.0 &60.0 & F\\
+		A05  &60.0 &0.0 &40.0 & C\\
+		
+		A06  &100.0 &0.0 &0.0 & C\\
+		A07  &100.0 &0.0 &0.0 & C\\
+		A08  &86.6.0 &0.0 &13.4 & C\\
+		A09  &100.0 &0.0 &0.0 & C\\
+		A10  &100.0 &0.0 &0.0 & C\\
+		
+	\end{tabular}
+	\\\\
+	
+	\textbf{Promedio de casillas sucias:}
+	
+	\begin{tabular}{|c|c|}
+		\textit{Amb}  &\textit{PCS}  \\ 
+		\hline
+		A01  &2 \\
+		A02  &0 \\
+		A03  &0 \\
+		A04  &81 \\
+		A05  &92 \\
+		A06  &0 \\
+		A07  &0 \\
+		A08  &18 \\
+		A09  &0 \\
+		A10  &0 \\
+		
+	\end{tabular}
+\\\\
+Como podemos ver para este caso de un Robot con completa percepci\'on sobre el ambiente y con una tarea de especificada, a cada paso se acerca al objetivo. Dado esto es f\'acil notar como en la mayor\'ia de los momentos de cada escenario se llega a un caso completado, en una peque\~na parte se culmina habiendo fallado y casi imperceptible el caso en que el ambiente se mantiene estable, dado que en cambio al anterior este robot reacciona seg\'un las condiciones de cada uno de los momentos y toma la mejor decisi\'on(seg\'un su heur\'istica).
+	
 \end{document}
 
 %===================================================================================
